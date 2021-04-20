@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
     /* -- write output -- */
     // putc(int c, FILE *stream)（出力文字, ファイルポインタ）
     // 指定したストリームに文字を出力
-    // おそらくここがヘッダ
+    // ここがヘッダ
     // https://www.rainorshine.asia/2016/06/05/post2696.html#toc2, https://qiita.com/mpyw/items/eb6ef5e444c2250361b5
     putc(0x1f, fout); // 1バイト目31, 00011111, 
     putc(0x8b, fout); 
@@ -122,9 +122,11 @@ int main(int argc, char *argv[])
     putc(0x03, fout); // OS
     // fwrite(書き込む変数アドレス,1項目のサイズ,項目数,ファイルポインタ)
     // ファイルの書き込み, http://9cguide.appspot.com/17-02.html
+    // ここが本体
     fwrite(comp.out.outbuf, 1, comp.out.outlen, fout);
+    printf("%s\n", comp.out.outbuf);
     
-    // たぶんフッタ
+    // フッタ
     unsigned crc = ~uzlib_crc32(source, len, ~0);
     fwrite(&crc, sizeof(crc), 1, fout);
     fwrite(&len, sizeof(len), 1, fout);
