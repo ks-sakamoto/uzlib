@@ -413,6 +413,7 @@ static int tinf_inflate_block_data(TINF_DATA *d, TINF_TREE *lt, TINF_TREE *dt)
         //printf("huff sym: %02x\n", sym);
 
         if (d->eof) {
+            // フッタ（ヘッダ？）がないと、ここでTINF_DATA_ERRORになるっぽい
             return TINF_DATA_ERROR;
         }
 
@@ -604,10 +605,11 @@ next_blk:
         case 2:
             /* decompress block with fixed/dynamic huffman trees */
             /* trees were decoded previously, so it's the same routine for both */
+            // フッタ（ヘッダ？）がないことでここがエラーになるっぽい
             res = tinf_inflate_block_data(d, &d->ltree, &d->dtree);
             break;
         default:
-            return TINF_DATA_ERROR;
+            return TINF_DATA_ERROR; 
         }
 
         if (res == TINF_DONE && !d->bfinal) {
@@ -632,6 +634,8 @@ int uzlib_uncompress_chksum(TINF_DATA *d)
     int res;
     unsigned char *data = d->dest;
 
+    // resが返り値になっている
+    // ここの値によってエラーになる, つまりここが解凍の本体
     res = uzlib_uncompress(d);
 
     if (res < 0) return res;
