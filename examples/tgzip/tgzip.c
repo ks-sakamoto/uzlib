@@ -67,17 +67,23 @@ int main(int argc, char *argv[])
     if ((fout = fopen(argv[2], "wb")) == NULL) exit_error("destination file");
 
     /* -- read source -- */
-
+    // ファイルの読み書き位置を移動する, https://www.k-cube.co.jp/wakaba/server/func/fseek.html
+    // int fseek(FILE *fp, long offset, int origin)(FILEポインタ, 移動バイト数, SEEK_END（ファイルの終端）)
+    // ファイルポインタを末尾まで移動
     fseek(fin, 0, SEEK_END);
-
+    // ファイルの読み書き位置を取得する, https://www.k-cube.co.jp/wakaba/server/func/ftell.html
+    // ftell(FILE *stream)
     len = ftell(fin);
-
+    // SEEK_SET（ファイルの先頭から）
+    // ファイルポインタを先頭まで移動
     fseek(fin, 0, SEEK_SET);
-
+    // malloc(), 動的メモリを確保する関数, https://www.sejuku.net/blog/25002
+    // 引数lenのバイト数分のメモリを確保, ファイル内の文字数分メモリ確保
     source = (unsigned char *)malloc(len);
 
     if (source == NULL) exit_error("memory");
-
+    // ファイルの読み込み, http://9cguide.appspot.com/17-02.html
+    // fread(読み込む変数のポインタ, 1項目のサイズ, 項目数, ファイルポインタ)
     if (fread(source, 1, len, fin) != len) exit_error("read");
 
     fclose(fin);
@@ -85,10 +91,14 @@ int main(int argc, char *argv[])
     /* -- compress data -- */
 
     struct uzlib_comp comp = {0};
-    comp.dict_size = 32768;
-    comp.hash_bits = 12;
+    comp.dict_size = 32768;  // 構造体compのdict_sizeの初期化
+    comp.hash_bits = 12;     // 構造体compのhash_bitsの初期化
+    // size_tはオブジェクトのバイト数を表現できる程度に十分に大きい符号なし整数型
+    // sizeofは変数や型のメモリサイズを調べるための演算子, メモリサイズをバイト単位で返す
     size_t hash_size = sizeof(uzlib_hash_entry_t) * (1 << comp.hash_bits);
     comp.hash_table = malloc(hash_size);
+    // メモリを初期化する, https://www.sejuku.net/blog/25002
+    // memset(メモリを設定するオブジェクトのアドレス, メモリにセットする値, メモリにセットする値の文字数)
     memset(comp.hash_table, 0, hash_size);
 
     zlib_start_block(&comp.out);
@@ -98,18 +108,23 @@ int main(int argc, char *argv[])
     printf("compressed to %u raw bytes\n", comp.out.outlen);
 
     /* -- write output -- */
-
-    putc(0x1f, fout);
-    putc(0x8b, fout);
+    // putc(int c, FILE *stream)（出力文字, ファイルポインタ）
+    // 指定したストリームに文字を出力
+    // おそらくここがヘッダ
+    // https://www.rainorshine.asia/2016/06/05/post2696.html#toc2, https://qiita.com/mpyw/items/eb6ef5e444c2250361b5
+    putc(0x1f, fout); // 1バイト目31, 00011111, 
+    putc(0x8b, fout); 
     putc(0x08, fout);
-    putc(0x00, fout); // FLG
+    putc(0x00, fout); // FLG:ビット 0 ～ 4 FCHECK （CMF と FLG のチェックビット）ビット 5 FDICT （プリセット辞書）ビット 6 ～ 7 FLEVEL （圧縮レベル
     int mtime = 0;
     fwrite(&mtime, sizeof(mtime), 1, fout);
-    putc(0x04, fout); // XFL
+    putc(0x04, fout); // XFL:圧縮レベル
     putc(0x03, fout); // OS
-
+    // fwrite(書き込む変数アドレス,1項目のサイズ,項目数,ファイルポインタ)
+    // ファイルの書き込み, http://9cguide.appspot.com/17-02.html
     fwrite(comp.out.outbuf, 1, comp.out.outlen, fout);
-
+    
+    // たぶんフッタ
     unsigned crc = ~uzlib_crc32(source, len, ~0);
     fwrite(&crc, sizeof(crc), 1, fout);
     fwrite(&len, sizeof(len), 1, fout);

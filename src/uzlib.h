@@ -142,7 +142,9 @@ int TINFCC uzlib_zlib_parse_header(TINF_DATA *d);
 int TINFCC uzlib_gzip_parse_header(TINF_DATA *d);
 
 /* Compression API */
-
+// uint8_t:符号なし8bit整数型
+// typedef:既存のデータ型に新たな名前をつける
+// const:変数の値を変更せず定数として宣言する際に使う修飾子
 typedef const uint8_t *uzlib_hash_entry_t;
 
 struct uzlib_comp {

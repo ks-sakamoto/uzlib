@@ -8,6 +8,7 @@
 ##
 ## http://www.ibsensoftware.com/
 ##
+## 圧縮のみならば、objectsのtinflate.o tinfgzip.o tinfzlib.oはいらない
 
 target  = ../lib/libtinf.a
 objects = tinflate.o tinfgzip.o tinfzlib.o adler32.o crc32.o \
