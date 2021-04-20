@@ -122,14 +122,17 @@ int main(int argc, char *argv[])
     d.source_limit = source + len - 4;
     d.source_read_cb = NULL;
 
+    // ここでヘッダをいじっている、解凍？
     res = uzlib_gzip_parse_header(&d);
     if (res != TINF_OK) {
         printf("Error parsing header: %d\n", res);
         exit(1);
     }
-
+    
+    // dest_start:Destination (output) buffer start
     d.dest_start = d.dest = dest;
 
+    // おそらくここが解凍の本体
     while (dlen) {
         unsigned int chunk_len = dlen < OUT_CHUNK_SIZE ? dlen : OUT_CHUNK_SIZE;
         d.dest_limit = d.dest + chunk_len;
@@ -158,7 +161,7 @@ int main(int argc, char *argv[])
 #endif
 
     /* -- write output -- */
-
+    // destを書き込んでいる, destが解凍したもの
     fwrite(dest, 1, outlen, fout);
 
     fclose(fout);
