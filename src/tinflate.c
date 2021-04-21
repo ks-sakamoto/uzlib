@@ -211,6 +211,7 @@ unsigned char uzlib_get_byte(TINF_DATA *d)
     /* Otherwise, we hit EOF (either from ->readSource() or from exhaustion
        of the buffer), and it will be "sticky", i.e. further calls to this
        function will end up here too. */
+    // ここが怪しいかも？
     d->eof = true;
 
     return 0;
@@ -411,7 +412,8 @@ static int tinf_inflate_block_data(TINF_DATA *d, TINF_TREE *lt, TINF_TREE *dt)
         int dist;
         int sym = tinf_decode_symbol(d, lt);
         //printf("huff sym: %02x\n", sym);
-
+        
+        // d->eof:構造体のポインタ->メンバ名, ポインタから構造体のメンバにアクセスする
         if (d->eof) {
             // フッタ（ヘッダ？）がないと、ここでTINF_DATA_ERRORになるっぽい
             return TINF_DATA_ERROR;
@@ -425,6 +427,7 @@ static int tinf_inflate_block_data(TINF_DATA *d, TINF_TREE *lt, TINF_TREE *dt)
 
         /* end of block */
         if (sym == 256) {
+            // ここでTINF_DONEにしている, つまり(sym == 256) = DONE
             return TINF_DONE;
         }
 
@@ -523,6 +526,7 @@ static int tinf_inflate_uncompressed_block(TINF_DATA *d)
     }
 
     if (--d->curlen == 0) {
+        // TINF_DONEになるのはここではなさそう
         return TINF_DONE;
     }
 
