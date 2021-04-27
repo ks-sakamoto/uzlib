@@ -112,14 +112,14 @@ int main(int argc, char *argv[])
     // 指定したストリームに文字を出力
     // ここがヘッダ
     // https://www.rainorshine.asia/2016/06/05/post2696.html#toc2, https://qiita.com/mpyw/items/eb6ef5e444c2250361b5
-    putc(0x1f, fout); // 1バイト目31, 00011111, 
-    putc(0x8b, fout); 
-    putc(0x08, fout);
-    putc(0x00, fout); // FLG:ビット 0 ～ 4 FCHECK （CMF と FLG のチェックビット）ビット 5 FDICT （プリセット辞書）ビット 6 ～ 7 FLEVEL （圧縮レベル
-    int mtime = 0;
-    fwrite(&mtime, sizeof(mtime), 1, fout);
-    putc(0x04, fout); // XFL:圧縮レベル
-    putc(0x03, fout); // OS
+   //  putc(0x1f, fout); // 1バイト目31, 00011111, 
+   //  putc(0x8b, fout); 
+   //  putc(0x08, fout);
+   //  putc(0x00, fout); // FLG:ビット 0 ～ 4 FCHECK （CMF と FLG のチェックビット）ビット 5 FDICT （プリセット辞書）ビット 6 ～ 7 FLEVEL （圧縮レベル
+   //  int mtime = 0;
+   //  fwrite(&mtime, sizeof(mtime), 1, fout);
+   //  putc(0x04, fout); // XFL:圧縮レベル
+   //  putc(0x03, fout); // OS
     // fwrite(書き込む変数アドレス,1項目のサイズ,項目数,ファイルポインタ)
     // ファイルの書き込み, http://9cguide.appspot.com/17-02.html
     // ここが本体
@@ -127,9 +127,9 @@ int main(int argc, char *argv[])
     printf("%s\n", comp.out.outbuf);
     
     // フッタ
-    unsigned crc = ~uzlib_crc32(source, len, ~0);
-    fwrite(&crc, sizeof(crc), 1, fout);
-    fwrite(&len, sizeof(len), 1, fout);
+   //  unsigned crc = ~uzlib_crc32(source, len, ~0);
+   //  fwrite(&crc, sizeof(crc), 1, fout);
+   //  fwrite(&len, sizeof(len), 1, fout);
 
     fclose(fout);
 
